@@ -17,7 +17,7 @@ const mealSchema = new Schema({
   gluten: Boolean,
   orderCounter: Number,
   rating: Number,
-  liks: Number,
+  likes: Number,
 });
 
 const Meal = mongoose.model('meal', mealSchema);

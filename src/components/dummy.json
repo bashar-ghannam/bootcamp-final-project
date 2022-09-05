@@ -1,0 +1,18 @@
+{
+  "name": "String",
+  "price": "Number",
+  "ingredients": "String",
+  "description": "String",
+  "size": "String",
+  "category": "String",
+  "type": "String",
+  "vegan": "Boolean",
+  "seafood": "Boolean",
+  "nutAllergy": "Boolean",
+  "egg": "Boolean",
+  "milk": "Boolean",
+  "gluten": "Boolean",
+  "orderCounter": "Number",
+  "rating": "Number",
+  "likes": "Number"
+}
