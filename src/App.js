@@ -1,20 +1,21 @@
-import './App.css';
-import React, { useState } from 'react';
-import { Routes, Route, Link, Navigate } from 'react-router-dom';
-import Login from './components/Login';
-import Meal from './components/Meal';
-import LandingPage from './components/LandingPage';
-import axios from 'axios';
-import jwt_decode from 'jwt-decode';
-import { AiFillChrome } from 'react-icons/ai';
-import Navbar from './components/Navbar';
+import "./App.css";
+import React, { useState } from "react";
+import { Routes, Route, Link, Navigate } from "react-router-dom";
+import Login from "./components/Login";
+import Meal from "./components/Meal";
+import LandingPage from "./components/LandingPage";
+import axios from "axios";
+import jwt_decode from "jwt-decode";
+import { AiFillChrome } from "react-icons/ai";
+import Navbar from "./components/Navbar";
+import MealDetails from "./components/MealDetail/MealDetails";
 
 function App() {
   const [user, setUser] = useState(null);
 
   const refreshToken = async () => {
     try {
-      const res = await axios.post('http://localhost:4200/refresh', {
+      const res = await axios.post("http://localhost:4200/refresh", {
         token: user.refreshToken,
       });
       setUser({
@@ -36,7 +37,7 @@ function App() {
       const decodedToken = jwt_decode(user.accessToken);
       if (decodedToken.exp * 1000 < currentDate.getTime()) {
         const data = await refreshToken();
-        config.headers['authorization'] = 'Bearer ' + data.accessToken;
+        config.headers["authorization"] = "Bearer " + data.accessToken;
       }
       return config;
     },
@@ -45,9 +46,9 @@ function App() {
     }
   );
 
-  const login = async function(username, password) {
+  const login = async function (username, password) {
     try {
-      const res = await axios.post('http://localhost:4200/login', {
+      const res = await axios.post("http://localhost:4200/login", {
         username,
         password,
       });
@@ -57,13 +58,13 @@ function App() {
     }
   };
 
-  const logout = async function() {
+  const logout = async function () {
     try {
       await axiosJWT.post(
-        'http://localhost:4200/logout',
+        "http://localhost:4200/logout",
         {},
         {
-          headers: { authorization: 'Bearer ' + user.accessToken },
+          headers: { authorization: "Bearer " + user.accessToken },
         }
       );
 
@@ -110,7 +111,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<MealDetails />} />
         <Route path="*" element={<p>There's nothing here: 404!</p>} />
       </Routes>
       <Navbar user={user} logout={logout} />
