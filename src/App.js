@@ -1,21 +1,39 @@
-import "./App.css";
-import React, { useState } from "react";
-import { Routes, Route, Link, Navigate } from "react-router-dom";
-import Login from "./components/Login";
-import Meal from "./components/Meal";
-import LandingPage from "./components/LandingPage";
-import axios from "axios";
-import jwt_decode from "jwt-decode";
-import { AiFillChrome } from "react-icons/ai";
-import Navbar from "./components/Navbar";
-import MealDetails from "./components/MealDetail/MealDetails";
+import './App.css';
+import React, { useState } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import Login from './components/Login';
+import LandingPage from './components/LandingPage/LandingPage';
+import axios from 'axios';
+import jwt_decode from 'jwt-decode';
+import Navbar from './components/Navbar';
+import MealDetails from './components/MealDetail/MealDetail';
+import Meals from './components/Meals/Meals';
+import ErrorPage from './components/ErrorPage';
+import Cart from './components/Cart/Cart';
+import Favourites from './components/Favourite/Favourites';
+import { observer, inject } from 'mobx-react';
 
-function App() {
+function App({ CartStore }) {
   const [user, setUser] = useState(null);
+  const [favCount, setFavCount] = React.useState(0);
+  const [favMeals, setFavMeals] = useState([]);
+
+  const getFav = async function (id) {
+    let meals = await axios.get(`http://localhost:4200/user/${id}/favMeal`);
+    setFavMeals(meals.data);
+    setFavCount(meals.data.length);
+  };
+
+  const addToFav = async (id) => {
+    await axios.post(`http://localhost:4200/user/${user.id}/favMeal`, {
+      mealId: id,
+    });
+    getFav(user.id);
+  };
 
   const refreshToken = async () => {
     try {
-      const res = await axios.post("http://localhost:4200/refresh", {
+      const res = await axios.post('http://localhost:4200/refresh', {
         token: user.refreshToken,
       });
       setUser({
@@ -30,14 +48,13 @@ function App() {
   };
 
   const axiosJWT = axios.create();
-
   axiosJWT.interceptors.request.use(
     async (config) => {
       let currentDate = new Date();
       const decodedToken = jwt_decode(user.accessToken);
       if (decodedToken.exp * 1000 < currentDate.getTime()) {
         const data = await refreshToken();
-        config.headers["authorization"] = "Bearer " + data.accessToken;
+        config.headers['authorization'] = 'Bearer ' + data.accessToken;
       }
       return config;
     },
@@ -48,11 +65,12 @@ function App() {
 
   const login = async function (username, password) {
     try {
-      const res = await axios.post("http://localhost:4200/login", {
+      const res = await axios.post('http://localhost:4200/login', {
         username,
         password,
       });
       setUser(res.data);
+      getFav(res.data.id);
     } catch (err) {
       console.log(err);
     }
@@ -61,14 +79,15 @@ function App() {
   const logout = async function () {
     try {
       await axiosJWT.post(
-        "http://localhost:4200/logout",
+        'http://localhost:4200/logout',
         {},
         {
-          headers: { authorization: "Bearer " + user.accessToken },
+          headers: { authorization: 'Bearer ' + user.accessToken },
         }
       );
-
       setUser(null);
+      setFavCount(0);
+      CartStore.emptyCart();
     } catch (err) {
       console.log(err);
     }
@@ -78,45 +97,60 @@ function App() {
     if (!user) {
       return <Navigate to="/login" replace />;
     }
-
     return children;
   };
 
   return (
     <div>
-      <nav>
-        <ul>
-          <li>
-            <AiFillChrome />
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/login">login</Link>
-          </li>
-          <li>
-            <Link to="/meal">meal</Link>
-          </li>
-        </ul>
-      </nav>
+      <div className="header">
+        <h2>Q-Food Order</h2>
+      </div>
       <Routes>
         <Route
           path="/login"
           element={<Login login={login} logout={logout} user={user} />}
         />
         <Route
-          path="/meal"
+          path="/cart"
           element={
             <ProtectedRoute user={user}>
-              <Meal />
+              <Cart />
             </ProtectedRoute>
           }
         />
-        <Route path="/" element={<MealDetails />} />
-        <Route path="*" element={<p>There's nothing here: 404!</p>} />
+        <Route
+          path={`/restaurants/:id`}
+          element={
+            <ProtectedRoute user={user}>
+              <Meals />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path={`/meal/:id`}
+          element={
+            <ProtectedRoute user={user}>
+              <MealDetails addToFav={addToFav} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path={`/favMeals`}
+          element={
+            <ProtectedRoute user={user}>
+              <Favourites favMeals={favMeals} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="/" element={<LandingPage />} />
+        <Route path="*" element={<ErrorPage />} />
       </Routes>
-      <Navbar user={user} logout={logout} />
+      <Navbar user={user} logout={logout} favCount={favCount} />
     </div>
   );
 }
 
-export default App;
+export default inject('CartStore')(observer(App));

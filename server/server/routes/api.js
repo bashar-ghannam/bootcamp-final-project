@@ -1,26 +1,98 @@
 const express = require('express');
 const router = express.Router();
 var jwt = require('jsonwebtoken');
-// const Transaction = require('../model/Transaction');
+const Meal = require('../models/meal');
+const Restaurant = require('../models/Restaurant');
+const User = require('../models/User');
 
-const users = [
-  {
-    id: 1,
-    username: 'bashar',
-    password: 'bashar',
-  },
-  {
-    id: 2,
-    username: 'anwar',
-    password: 'anwar',
-  },
-];
+router.post('/user/:userId/favMeal', (request, response) => {
+  const mealId = request.body.mealId;
+  const userId = request.params.userId;
+  User.findById(userId, function (err, user) {
+    if (err) {
+      response.status(400).json('Not found');
+    }
+    user.favMeals.push(mealId);
+    user.save();
+    response.status(200).json('Added');
+  });
+});
+
+router.get('/user/:userId/favMeal', (request, response) => {
+  const userId = request.params.userId;
+  User.findOne({ _id: userId })
+    .populate('favMeals')
+    .exec(function (err, user) {
+      if (err) {
+        response.status(404).json('not found');
+      } else {
+        response.status(200).json(user.favMeals);
+      }
+    });
+});
+
+router.get('/restaurants', (request, response) => {
+  Restaurant.find({}, function (err, meals) {
+    if (err) {
+      response.status(404).json('There is no items.');
+    } else {
+      response.status(200).json(meals);
+    }
+  });
+});
+
+router.get('/restaurants/:id', (request, response) => {
+  const id = request.params.id;
+  Restaurant.find({ _id: id })
+    .populate('meals')
+    .exec(function (err, meals) {
+      if (err) {
+        response.status(404).json('Restaurant not found');
+      } else {
+        response.status(200).json(meals);
+      }
+    });
+});
+
+router.get('/meals', (request, response) => {
+  Restaurant.find({}, function (err, meals) {
+    if (err) {
+      response.status(404).json('There is no items.');
+    } else {
+      response.status(200).json(meals);
+    }
+  });
+});
+
+router.get('/popularMeals', (request, response) => {
+  Meal.find({})
+    .sort({ orderCounter: -1 })
+    .limit(10)
+    .exec(function (err, meals) {
+      if (err) {
+        response.status(404).json('Not found');
+      } else {
+        response.status(200).json(meals);
+      }
+    });
+});
+
+router.get('/meals/:id', (request, response) => {
+  const id = request.params.id;
+  Meal.findById(id, function (err, meal) {
+    if (err) {
+      response.status(404).json('Meal not found');
+    } else {
+      response.status(200).json(meal);
+    }
+  });
+});
 
 let refreshTokens = [];
 
 const generateAccessToken = (user) => {
   return jwt.sign({ id: user.id, username: user.username }, 'mySecretKey', {
-    expiresIn: '5s',
+    expiresIn: '50m',
   });
 };
 
@@ -55,22 +127,22 @@ router.post('/refresh', (request, response) => {
 
 router.post('/login', (request, response) => {
   const { username, password } = request.body;
-  const user = users.find((user) => {
-    return user.username === username && user.password === password;
+  User.findOne({ username, password }, function (err, user) {
+    if (err || user.length === 0) {
+      response.status(400).send('Username or Password incorrect');
+    } else {
+      const accessToken = generateAccessToken(user);
+      const refreshToken = generateRefreshToken(user);
+      refreshTokens.push(refreshToken);
+      response.status(200).json({
+        id: user._id,
+        username: user.username,
+        password: user.password,
+        accessToken,
+        refreshToken,
+      });
+    }
   });
-  if (user) {
-    const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user);
-    refreshTokens.push(refreshToken);
-    response.status(200).json({
-      username: user.username,
-      password: user.password,
-      accessToken,
-      refreshToken,
-    });
-  } else {
-    response.status(400).send('Username or Password incorrect');
-  }
 });
 
 const verify = (request, response, next) => {
@@ -93,15 +165,6 @@ router.post('/logout', verify, (request, response) => {
   const refreshToken = request.body.token;
   refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
   response.status(200).json('You logged out successfully.');
-});
-
-router.delete('/user/:userId', verify, (request, response) => {
-  const user = request.user;
-  if (user.id === parseInt(request.params.userId) || user.isAdmin) {
-    response.status(200).json('User has been deleted.');
-  } else {
-    response.status(403).json('You are not allowed to delete this user!');
-  }
 });
 
 module.exports = router;

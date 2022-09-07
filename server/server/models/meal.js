@@ -4,21 +4,18 @@ const Schema = mongoose.Schema;
 const mealSchema = new Schema({
   name: String,
   price: Number,
-  ingredients: String,
   description: String,
-  size: String, //number of person
-  category: String, //lunch,breakfast
+  category: [], //lunch,breakfast
   type: String, //jucie,food
-  vegan: Boolean,
-  seafood: Boolean,
-  nutAllergy: Boolean,
-  egg: Boolean,
-  milk: Boolean,
-  gluten: Boolean,
+  sensitivity: [],
+  calories: Number,
+  img: String,
+  cookingTime: Number,
   orderCounter: Number,
-  rating: Number,
+  ratingSum: Number,
+  ratingCounter: Number,
   likes: Number,
 });
 
-const Meal = mongoose.model('meal', mealSchema);
+const Meal = mongoose.model('Meal', mealSchema);
 module.exports = Meal;

@@ -1,36 +1,27 @@
-import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import BottomNavigation from '@material-ui/core/BottomNavigation';
-import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
-import AccountCircle from '@material-ui/icons/AccountCircle';
-import HomeIcon from '@material-ui/icons/Home';
-import FavoriteIcon from '@material-ui/icons/Favorite';
-import NotificationsIcon from '@material-ui/icons/Notifications';
+import * as React from 'react';
+import BottomNavigation from '@mui/material/BottomNavigation';
+import BottomNavigationAction from '@mui/material/BottomNavigationAction';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import HomeIcon from '@mui/icons-material/Home';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { Link } from 'react-router-dom';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import Grow from '@material-ui/core/Grow';
-import Paper from '@material-ui/core/Paper';
-import Popper from '@material-ui/core/Popper';
-import MenuItem from '@material-ui/core/MenuItem';
-import MenuList from '@material-ui/core/MenuList';
+import ClickAwayListener from '@mui/material/ClickAwayListener';
+import Grow from '@mui/material/Grow';
+import Paper from '@mui/material/Paper';
+import Popper from '@mui/material/Popper';
+import MenuItem from '@mui/material/MenuItem';
+import MenuList from '@mui/material/MenuList';
+import { Badge } from '@mui/material';
+import { observer, inject } from 'mobx-react';
 
-const useStyles = makeStyles({
-  root: {
-    position: 'fixed',
-    top: 'auto',
-    bottom: 0,
-    width: '100%',
-    color: 'red',
-    backgroundColor: 'red',
-  },
-  link: {
-    textDecoration: 'none',
-  },
-});
-
-function Navbar({ user, logout }) {
-  const classes = useStyles();
+function Navbar({ user, logout, CartStore, favCount }) {
   const [value, setValue] = React.useState('recents');
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
+
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
 
@@ -50,28 +41,24 @@ function Navbar({ user, logout }) {
     if (event.key === 'Tab') {
       event.preventDefault();
       setOpen(false);
+    } else if (event.key === 'Escape') {
+      setOpen(false);
     }
   }
 
-  // return focus to the button when we transitioned from !open -> open
   const prevOpen = React.useRef(open);
   React.useEffect(() => {
     if (prevOpen.current === true && open === false) {
       anchorRef.current.focus();
     }
-
     prevOpen.current = open;
   }, [open]);
-
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
 
   return (
     <BottomNavigation
       value={value}
       onChange={handleChange}
-      className={classes.root}
+      sx={{ position: 'fixed', top: 'auto', bottom: 0, width: '100%' }}
     >
       <BottomNavigationAction
         label="Home"
@@ -86,8 +73,10 @@ function Navbar({ user, logout }) {
         label="Favorites"
         value="favorites"
         icon={
-          <Link to="/">
-            <FavoriteIcon />
+          <Link to="/favMeals">
+            <Badge color="secondary" badgeContent={favCount}>
+              <FavoriteIcon />
+            </Badge>
           </Link>
         }
       />
@@ -95,8 +84,10 @@ function Navbar({ user, logout }) {
         label="Notification"
         value="Notification"
         icon={
-          <Link to="/meal">
-            <NotificationsIcon />
+          <Link to="/cart">
+            <Badge color="secondary" badgeContent={CartStore.totalQuantities}>
+              <ShoppingCartIcon />
+            </Badge>
           </Link>
         }
       />
@@ -107,7 +98,9 @@ function Navbar({ user, logout }) {
           <div>
             <span
               ref={anchorRef}
-              aria-controls={open ? 'menu-list-grow' : undefined}
+              id="composition-button"
+              aria-controls={open ? 'composition-menu' : undefined}
+              aria-expanded={open ? 'true' : undefined}
               aria-haspopup="true"
               onClick={handleToggle}
             >
@@ -117,6 +110,7 @@ function Navbar({ user, logout }) {
               open={open}
               anchorEl={anchorRef.current}
               role={undefined}
+              placement="bottom-start"
               transition
               disablePortal
             >
@@ -125,26 +119,45 @@ function Navbar({ user, logout }) {
                   {...TransitionProps}
                   style={{
                     transformOrigin:
-                      placement === 'bottom' ? 'center top' : 'center bottom',
+                      placement === 'bottom-start' ? 'left top' : 'left bottom',
                   }}
                 >
                   <Paper>
                     <ClickAwayListener onClickAway={handleClose}>
                       <MenuList
                         autoFocusItem={open}
-                        id="menu-list-grow"
+                        id="composition-menu"
+                        aria-labelledby="composition-button"
                         onKeyDown={handleListKeyDown}
+                        sx={{ width: 'auto' }}
                       >
                         {user === null ? (
-                          <MenuItem onClick={handleClose}>
-                            <Link to="/login" className={classes.link}>
+                          <MenuItem
+                            onClick={handleClose}
+                            sx={{
+                              width: '100px',
+                              display: 'block',
+                            }}
+                          >
+                            <Link
+                              to="/login"
+                              style={{ textDecoration: 'none', color: 'black' }}
+                            >
                               Login
                             </Link>
                           </MenuItem>
                         ) : (
                           <div>
-                            <MenuItem onClick={handleClose}>Profile</MenuItem>
-                            <MenuItem onClick={handleClose}>
+                            <MenuItem
+                              onClick={handleClose}
+                              sx={{ width: '100px', display: 'block' }}
+                            >
+                              Profile
+                            </MenuItem>
+                            <MenuItem
+                              onClick={handleClose}
+                              sx={{ width: '100px', display: 'block' }}
+                            >
                               <span onClick={logout}>Logout</span>
                             </MenuItem>
                           </div>
@@ -162,4 +175,4 @@ function Navbar({ user, logout }) {
   );
 }
 
-export default Navbar;
+export default inject('CartStore')(observer(Navbar));

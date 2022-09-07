@@ -1,0 +1,36 @@
+.mealImg {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.backIcon {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  opacity: 0.6;
+}
+
+.favIcon {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  opacity: 0.6;
+}
+
+.mealContent {
+  padding: 15px;
+  margin-bottom: 50px;
+}
+
+hr {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.mealDetailsList {
+  padding-left: 25px;
+}
