@@ -5,7 +5,7 @@ import './Landing.css';
 import axios from 'axios';
 import PopularMeals from './PopularMeals';
 
-function LandingPage() {
+function LandingPage({ FilterMeals }) {
   const [restaurants, setRestaurants] = useState([]);
 
   useEffect(() => {
@@ -19,7 +19,7 @@ function LandingPage() {
   return (
     <div className="landing">
       <Restaurants restaurants={restaurants} />
-      <MealType />
+      <MealType FilterMeals={FilterMeals} />
       <PopularMeals />
     </div>
   );

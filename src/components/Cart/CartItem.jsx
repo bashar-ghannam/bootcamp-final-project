@@ -60,7 +60,7 @@ function CartItem({ cartItem, CartStore }) {
         <span>₪{cartItem.price * quantity}</span>
         <Button
           variant="contained"
-          sx={{ backgroundColor: '#ffd54f', color: 'black', width: '10px' }}
+          sx={{ backgroundColor: '#ff9800', color: 'black', width: '10px' }}
           onClick={() => CartStore.removeIeam(cartItem.id)}
         >
           x

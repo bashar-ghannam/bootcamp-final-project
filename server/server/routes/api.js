@@ -31,6 +31,44 @@ router.get('/user/:userId/favMeal', (request, response) => {
     });
 });
 
+router.get('/meal/category/:category', (request, response) => {
+  const mealCategory = request.params.category;
+  Meal.find({ category: mealCategory })
+    .limit(10)
+    .exec(function (err, meals) {
+      if (err) {
+        response.status(404).json('Not found');
+      } else {
+        response.status(200).json(meals);
+      }
+    });
+});
+
+router.get('/meal/vegan', (request, response) => {
+  Meal.find({ 'sensitivity.vegan': true })
+    .limit(10)
+    .exec(function (err, meals) {
+      if (err) {
+        response.status(404).json('Not found');
+      } else {
+        response.status(200).json(meals);
+      }
+    });
+});
+
+router.get('/meal/type/:type', (request, response) => {
+  const mealType = request.params.type;
+  Meal.find({ type: mealType })
+    .limit(10)
+    .exec(function (err, meals) {
+      if (err) {
+        response.status(404).json('Not found');
+      } else {
+        response.status(200).json(meals);
+      }
+    });
+});
+
 router.get('/restaurants', (request, response) => {
   Restaurant.find({}, function (err, meals) {
     if (err) {

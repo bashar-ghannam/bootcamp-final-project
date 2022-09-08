@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { GiHamburger } from 'react-icons/gi';
 import { BiDrink } from 'react-icons/bi';
 import { FaPizzaSlice } from 'react-icons/fa';
@@ -7,31 +7,53 @@ import { GiCakeSlice } from 'react-icons/gi';
 import { BsEggFried } from 'react-icons/bs';
 import Avatar from '@mui/material/Avatar';
 import { Grid } from '@mui/material';
+import axios from 'axios';
+import FilterMeals from '../FilterMeals';
 
 export default function MealType() {
+  const [filter, setFilter] = useState('');
+  const [filterName, setFilterName] = useState('');
+  const [filterMeals, setFilterMeals] = useState([]);
+
+  useEffect(() => {
+    if (filter !== '') {
+      const getFilterMeals = async () => {
+        let meals = await axios.get(`http://localhost:4200${filter}`);
+        setFilterMeals(meals.data);
+      };
+      getFilterMeals();
+    }
+  }, [filter]);
+
   const mealsFilter = [
     {
       name: 'Break fast',
+      url: '/meal/category/break fast',
       img: <BsEggFried size="50" />,
     },
     {
       name: 'Lunch',
+      url: '/meal/category/lunch',
       img: <FaPizzaSlice size="40" />,
     },
     {
       name: 'Dinner',
+      url: '/meal/category/dinner',
       img: <GiHamburger size="50" />,
     },
     {
       name: 'Desart',
+      url: '/meal/type/dessert',
       img: <GiCakeSlice size="50" />,
     },
     {
       name: 'Drinks',
+      url: '/meal/type/drink',
       img: <BiDrink size="50" />,
     },
     {
-      name: 'Healthy food',
+      name: 'Healthy food(vegean)',
+      url: '/meal/vegan',
       img: <GiFruitBowl size="50" />,
     },
   ];
@@ -49,14 +71,23 @@ export default function MealType() {
           px={3}
         >
           {mealsFilter.map((filter, index) => (
-            <Grid item xs={3} sx={{ textAlign: 'center' }} key={index}>
+            <Grid
+              item
+              xs={3}
+              sx={{ textAlign: 'center' }}
+              key={index}
+              onClick={() => {
+                setFilter(filter.url);
+                setFilterName(filter.name);
+              }}
+            >
               <Avatar
                 sx={{
                   width: 70,
                   height: 70,
                   mb: 1,
                   backgroundColor: '#fafafa',
-                  color: '#ffb300',
+                  color: '#ff9800',
                 }}
               >
                 {filter.img}
@@ -66,6 +97,9 @@ export default function MealType() {
           ))}
         </Grid>
       </div>
+      {filter !== '' && (
+        <FilterMeals meals={filterMeals} filterName={filterName} />
+      )}
     </div>
   );
 }

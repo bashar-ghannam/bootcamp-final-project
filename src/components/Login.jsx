@@ -44,6 +44,7 @@ export default function SignIn({ login }) {
           >
             <Grid item xs={12}>
               <input
+                type="text"
                 placeholder="username"
                 value={username}
                 style={{ height: '30px' }}
@@ -52,6 +53,7 @@ export default function SignIn({ login }) {
             </Grid>
             <Grid item xs={12}>
               <input
+                type="password"
                 placeholder="password"
                 value={password}
                 style={{ height: '30px' }}
@@ -60,6 +62,7 @@ export default function SignIn({ login }) {
             </Grid>
             <Grid item xs={12}>
               <button
+                style={{ color: '#ff9800', width: '110px' }}
                 onClick={() => {
                   login(username, password);
                   navigate('/');

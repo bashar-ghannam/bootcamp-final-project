@@ -42,7 +42,11 @@ export default function Restaurant({ restaurant }) {
       <CardActions>
         <Link
           to={`/restaurants/${restaurant._id}`}
-          style={{ textDecoration: 'none', color: 'black' }}
+          style={{
+            textDecoration: 'none',
+            color: '#e65100',
+            fontWeight: 'bolder',
+          }}
         >
           Show all meals
         </Link>

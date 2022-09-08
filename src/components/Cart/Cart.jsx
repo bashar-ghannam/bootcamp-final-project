@@ -38,7 +38,7 @@ function Cart({ CartStore }) {
           variant="contained"
           startIcon={<AddCircleIcon />}
           sx={{
-            backgroundColor: '#fbc02d',
+            backgroundColor: '#ff9800',
             fontSize: 12,
             my: 1,
           }}

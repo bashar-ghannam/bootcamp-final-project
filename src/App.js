@@ -18,6 +18,7 @@ function App({ CartStore }) {
   const [favCount, setFavCount] = React.useState(0);
   const [favMeals, setFavMeals] = useState([]);
 
+
   const getFav = async function (id) {
     let meals = await axios.get(`http://localhost:4200/user/${id}/favMeal`);
     setFavMeals(meals.data);
@@ -144,7 +145,6 @@ function App({ CartStore }) {
             </ProtectedRoute>
           }
         />
-
         <Route path="/" element={<LandingPage />} />
         <Route path="*" element={<ErrorPage />} />
       </Routes>

@@ -63,30 +63,41 @@ function Navbar({ user, logout, CartStore, favCount }) {
       <BottomNavigationAction
         label="Home"
         value="Home"
+        style={{ color: '#ff9800' }}
         icon={
           <Link to="/">
-            <HomeIcon />
+            <HomeIcon style={{ color: '#ff9800' }} />
           </Link>
         }
       />
       <BottomNavigationAction
         label="Favorites"
         value="favorites"
+        style={{ color: '#ff9800' }}
         icon={
           <Link to="/favMeals">
-            <Badge color="secondary" badgeContent={favCount}>
+            <Badge
+              color="secondary"
+              badgeContent={favCount}
+              style={{ color: '#ff9800' }}
+            >
               <FavoriteIcon />
             </Badge>
           </Link>
         }
       />
       <BottomNavigationAction
+        style={{ color: '#ff9800' }}
         label="Notification"
         value="Notification"
         icon={
           <Link to="/cart">
-            <Badge color="secondary" badgeContent={CartStore.totalQuantities}>
-              <ShoppingCartIcon />
+            <Badge
+              color="secondary"
+              badgeContent={CartStore.totalQuantities}
+              style={{ color: '#ff9800' }}
+            >
+              <ShoppingCartIcon style={{ color: '#ff9800' }} />
             </Badge>
           </Link>
         }
@@ -94,6 +105,7 @@ function Navbar({ user, logout, CartStore, favCount }) {
       <BottomNavigationAction
         label="Profile"
         value="Profile"
+        style={{ color: '#ff9800' }}
         icon={
           <div>
             <span
